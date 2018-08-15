@@ -2,6 +2,8 @@ GET     /                           controllers.ImageLoaderController.index
 POST    /images                     controllers.ImageLoaderController.loadImage(uploadedBy: Option[String], identifiers: Option[String], uploadTime: Option[String], filename: Option[String])
 POST    /imports                    controllers.ImageLoaderController.importImage(uri: String, uploadedBy: Option[String], identifiers: Option[String], uploadTime: Option[String], filename: Option[String])
 
+POST    /importFromS3               controllers.ImportFromS3Controller.importFromS3
+
 # Management
 GET     /management/healthcheck     com.gu.mediaservice.lib.management.Management.healthCheck
 GET     /management/manifest        com.gu.mediaservice.lib.management.Management.manifest
