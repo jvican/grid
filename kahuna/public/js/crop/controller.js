@@ -2,7 +2,7 @@ import angular from 'angular';
 
 import '../components/gr-keyboard-shortcut/gr-keyboard-shortcut';
 
-var crop = angular.module('kahuna.crop.controller', ['gr.keyboardShortcut']);
+const crop = angular.module('kahuna.crop.controller', ['gr.keyboardShortcut']);
 
 crop.controller('ImageCropCtrl',
                 ['$scope', '$rootScope', '$stateParams', '$state',
@@ -34,28 +34,28 @@ crop.controller('ImageCropCtrl',
             combo: 'l',
             description: 'Start landscape crop',
             callback: () => {
-                ctrl.aspect = ctrl.landscapeRatio;
+                ctrl.aspect = ctrl.ratios.landscape;
             }
         })
         .add({
             combo: 's',
             description: 'Start square crop',
             callback: () => {
-                ctrl.aspect = ctrl.squareRatio;
+                ctrl.aspect = ctrl.ratios.square;
             }
         })
         .add({
             combo: 'p',
             description: 'Start portrait crop',
             callback: () => {
-                ctrl.aspect = ctrl.portraitRatio;
+                ctrl.aspect = ctrl.ratios.portrait;
             }
         })
         .add({
             combo: 'v',
             description: 'Start video crop',
             callback: () => {
-                ctrl.aspect = ctrl.videoRatio;
+                ctrl.aspect = ctrl.ratios.video;
             }
         })
         .add({
@@ -73,11 +73,15 @@ crop.controller('ImageCropCtrl',
     ctrl.cropping = false;
 
     // Standard ratios
-    ctrl.squareRatio = 1;
-    ctrl.landscapeRatio = 5 / 3;
-    ctrl.portraitRatio = 4 / 5;
-    ctrl.videoRatio = 16 / 9;
-    ctrl.freeRatio = null;
+    ctrl.ratios = {
+        landscape: 5 / 3,
+        portrait: 4 / 5,
+        square: 1,
+        video: 16 / 9,
+        free: null
+    };
+
+    ctrl.ratioKeys = Object.keys(ctrl.ratios);
 
     const originalDimensions = image.data.source.dimensions;
     ctrl.originalWidth  = originalDimensions.width;
@@ -90,11 +94,9 @@ crop.controller('ImageCropCtrl',
         ctrl.originalHeight - ctrl.cropHeight();
 
     if (ctrl.cropType === 'video') {
-        ctrl.aspect = ctrl.videoRatio;
-    } else if (ctrl.cropType === 'landscape') {
-        ctrl.aspect = ctrl.landscapeRatio;
+        ctrl.aspect = ctrl.ratios.video;
     } else {
-        ctrl.aspect = ctrl.landscapeRatio;
+        ctrl.aspect = ctrl.ratios.landscape;
     }
 
     ctrl.coords = {
@@ -121,13 +123,13 @@ crop.controller('ImageCropCtrl',
 
 
     const ratioString = (aspect) => {
-        if (Number(aspect) === ctrl.landscapeRatio) {
+        if (Number(aspect) === ctrl.ratios.landscape) {
             return '5:3';
-        } else if (Number(aspect) === ctrl.portraitRatio) {
+        } else if (Number(aspect) === ctrl.ratios.portrait) {
             return '4:5';
-        } else if (Number(aspect) === ctrl.squareRatio) {
+        } else if (Number(aspect) === ctrl.ratios.square) {
             return '1:1';
-        } else if (Number(aspect) === ctrl.videoRatio) {
+        } else if (Number(aspect) === ctrl.ratios.video) {
             return '16:9';
         }
         // else undefined is fine
@@ -184,13 +186,13 @@ crop.controller('ImageCropCtrl',
     ctrl.cropSizeWarning = () => ctrl.cropWidth() < 500;
 
     ctrl.getRatioString = (aspect) => {
-        if (Number(aspect) === ctrl.landscapeRatio) {
+        if (Number(aspect) === ctrl.ratios.landscape) {
             return '5:3';
-        } else if (Number(aspect) === ctrl.portraitRatio) {
+        } else if (Number(aspect) === ctrl.ratios.portrait) {
             return '4:5';
-        } else if (Number(aspect) === ctrl.squareRatio) {
+        } else if (Number(aspect) === ctrl.ratios.square) {
             return '1:1';
-        } else if (Number(aspect) === ctrl.videoRatio) {
+        } else if (Number(aspect) === ctrl.ratios.video) {
             return '16:9';
         }
         // else undefined is fine
@@ -198,14 +200,14 @@ crop.controller('ImageCropCtrl',
 
      function crop() {
          // TODO: show crop
-         var coords = {
+         const coords = {
              x: Math.round(ctrl.coords.x1),
              y: Math.round(ctrl.coords.y1),
              width:  ctrl.cropWidth(),
              height: ctrl.cropHeight()
          };
 
-         var ratio = ctrl.getRatioString(ctrl.aspect);
+         const ratio = ctrl.getRatioString(ctrl.aspect);
 
          ctrl.cropping = true;
 
