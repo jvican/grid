@@ -52,20 +52,6 @@ object SyndicationFilter extends ImageFields {
     filters.date("syndicationRights.published", None, Some(DateTime.now)).get
   )
 
-  private val syndicationStartDateFilter: FilterBuilder = {
-    // syndication starts on 23 August 2018 as that's when training had been completed
-    // don't show images uploaded prior to this date to keep the review queue manageable
-    // for Editorial by not showing past images that RCS has told us about (~5k images)
-    // TODO move this to config?
-    val startDate = new DateTime()
-      .withYear(2018)
-      .withMonthOfYear(8)
-      .withDayOfMonth(23)
-      .withTimeAtStartOfDay()
-
-    filters.date("uploadTime", Some(startDate), None).get
-  }
-
   def statusFilter(status: SyndicationStatus, config: MediaApiConfig): FilterBuilder = status match {
     case SentForSyndication => filters.and(
       hasRightsAcquired,
@@ -97,13 +83,14 @@ object SyndicationFilter extends ImageFields {
         )
       )
 
-      if (config.isProd) {
-        filters.and(
-          syndicationStartDateFilter,
+      config.syndicationStartDate match {
+        // don't show images uploaded prior to `syndicationStartDate` to keep the review queue manageable
+        // for Editorial by not showing past images that RCS has told us about (~5k images)
+        case Some(date) if config.isProd => filters.and(
+          filters.date("uploadTime", Some(date), None).get,
           rightsAcquiredNoLeaseFilter
         )
-      } else {
-        rightsAcquiredNoLeaseFilter
+        case _ => rightsAcquiredNoLeaseFilter
       }
     }
     case UnsuitableForSyndication => noRightsAcquired
